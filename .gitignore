@@ -1,0 +1,37 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Java / Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+
+# Node / Next.js / Hardhat
+**/node_modules/
+frontend/.next/
+frontend/out/
+blockchain/artifacts/
+blockchain/cache/
+blockchain/coverage/
+blockchain/types/
+blockchain/typechain-types/
+blockchain/ignition/deployments/
+
+# Generated application artifacts
+storage/
+backend/storage/
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Logs and temporary work
+*.log
+tmp/
