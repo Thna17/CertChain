@@ -135,7 +135,7 @@ Revocation follows the same journal pattern. The database is updated to revoked 
 ## 6. Certificate identity and canonical hash
 
 - Public ID format: `CERT-YYYY-NNNNNN`.
-- A database-backed yearly sequence allocates numbers safely under concurrency; `COUNT(*) + 1` is forbidden.
+- One global database-backed sequence row per year allocates numbers safely across all organizations using a PostgreSQL upsert; `COUNT(*) + 1` is forbidden. Gaps are acceptable because numbers identify certificates rather than count completed issuances.
 - Contract key: `keccak256(UTF-8(uppercase(trim(certificateId))))`.
 - Certificate proof: `SHA-256(UTF-8(canonicalData))`, stored as `bytes32`.
 

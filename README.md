@@ -4,7 +4,7 @@ CertChain is a blockchain-based digital certificate issuing and verification pla
 
 ## Current status
 
-Phase 1 is establishing the monorepo, local infrastructure, environment contracts, and executable frontend/backend/blockchain baselines. The detailed phased checklist is in [`docs/implementation-checklist.md`](docs/implementation-checklist.md).
+Phase 2 adds the PostgreSQL schema and backend domain foundation. The detailed phased checklist is in [`docs/implementation-checklist.md`](docs/implementation-checklist.md).
 
 ## Architecture documentation
 
@@ -92,6 +92,8 @@ cd backend && ./mvnw test
 # Blockchain
 cd blockchain && npm test
 ```
+
+Backend tests include a Docker-independent H2 context smoke test. PostgreSQL integration tests use Testcontainers and run when Docker is available; they verify Flyway, PostgreSQL constraints, repository behavior, and concurrent public ID allocation. The main application runs Flyway on startup against PostgreSQL. To apply migrations locally, start PostgreSQL with `docker compose up -d postgres`, then run `cd backend && ./mvnw spring-boot:run`.
 
 ## Assignment deliverables
 

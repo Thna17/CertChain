@@ -8,7 +8,6 @@ erDiagram
     ORGANIZATION ||--o{ CERTIFICATE : issues
     CERTIFICATE ||--o{ BLOCKCHAIN_TRANSACTION : records
     CERTIFICATE ||--o{ EMAIL_DELIVERY : notifies
-    CERTIFICATE_NUMBER_SEQUENCE }o--|| ORGANIZATION : scopes
 
     ORGANIZATION {
         uuid id PK
@@ -46,14 +45,9 @@ erDiagram
         varchar canonicalization_version
         char certificate_hash
         varchar pdf_storage_key
-        varchar issue_transaction_hash
-        bigint issue_block_number
-        varchar contract_address
-        varchar blockchain_network
         timestamptz issued_at
         timestamptz revoked_at
         text revocation_reason
-        varchar revocation_transaction_hash
         integer version
         timestamptz created_at
         timestamptz updated_at
@@ -91,7 +85,6 @@ erDiagram
     }
 
     CERTIFICATE_NUMBER_SEQUENCE {
-        uuid organization_id PK,FK
         integer sequence_year PK
         bigint next_value
         integer version
@@ -103,11 +96,11 @@ erDiagram
 | Entity | Purpose | Key rules |
 |---|---|---|
 | `Organization` | Issuing tenant and public issuer profile | Name and email required; wallet address optional in the first backend-signer release. |
-| `User` | Authenticated organization administrator | Globally unique normalized email, BCrypt password hash, role enum, organization required. |
+| `AppUser` | Authenticated organization administrator | Globally unique case-insensitive email, BCrypt password hash, role enum, organization required. |
 | `Certificate` | Operational certificate aggregate | UUID internal ID; unique immutable public ID; immutable proof fields after issuance begins; optimistic locking. |
 | `BlockchainTransaction` | Auditable transaction journal | One certificate can have issue/revoke attempts; transaction hash unique when present; status transitions are explicit. |
 | `EmailDelivery` | Retry/audit record for recipient notifications | Email failure is independent from issuance success. |
-| `CertificateNumberSequence` | Concurrency-safe yearly public ID allocation | Updated under a row lock; unique `(organization_id, sequence_year)`. |
+| `CertificateNumberSequence` | Concurrency-safe global yearly public ID allocation | `sequence_year` is the primary key. A single PostgreSQL upsert atomically allocates each number. |
 
 ## Enums and derived values
 
@@ -117,12 +110,18 @@ erDiagram
 - `BlockchainTransactionType`: `ISSUE`, `REVOKE`.
 - `BlockchainTransactionStatus`: `CREATED`, `SUBMITTED`, `CONFIRMED`, `FAILED`.
 - `EmailDeliveryStatus`: `PENDING`, `SENT`, `FAILED`.
+- `EmailDeliveryType`: `CERTIFICATE_ISSUED`.
+
+Public IDs use `CERT-YYYY-NNNNNN` and are unique across all organizations. Allocation uses one global row per year, with an atomic `INSERT ... ON CONFLICT ... DO UPDATE ... RETURNING`. Numbers can have gaps after a rolled-back or abandoned workflow; IDs are identifiers, not a count of completed certificates. The unique `certificate.certificate_id` constraint is the final collision guard.
+
+`BlockchainTransaction` is authoritative for transaction hash, network, chain ID, contract address, block number, confirmation time, and failure details. `Certificate` does not duplicate that metadata. Public status is derived later from issued and revoked state and the current date; it is never persisted.
 
 The database stores timestamps as UTC `timestamptz`. Issue and expiry are business dates; expiration is evaluated at the end of the expiry date in the configured organization timezone, initially UTC unless the domain later adds an organization timezone.
 
 ## Important constraints and indexes
 
 - unique index on `certificate.certificate_id`;
+- unique functional index on `lower(app_user.email)`;
 - index on `certificate(organization_id, created_at desc)`;
 - index on `certificate(organization_id, lifecycle)`;
 - unique partial/index constraint for non-null transaction hashes;

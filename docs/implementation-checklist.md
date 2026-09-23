@@ -14,9 +14,9 @@
 
 ## Phase 2 - Database and domain
 
-- [ ] Add Flyway migrations, constraints, and indexes.
-- [ ] Implement entities, enums, repositories, DTOs, and mappers.
-- [ ] Implement concurrency-safe certificate ID allocation.
+- [x] Add Flyway migrations, constraints, and indexes.
+- [x] Implement entities, enums, repositories, DTOs, and mappers.
+- [x] Implement concurrency-safe certificate ID allocation.
 - [ ] Add repository and container-backed integration tests.
 
 ## Phase 3 - Authentication and tenancy
