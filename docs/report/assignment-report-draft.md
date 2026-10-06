@@ -1,5 +1,5 @@
 **CertChain - Assignment Report (evidence draft)**
-Prepared 29 September 2026. This is a draft because a public deployment, Sepolia transaction, complete UI screenshot set, and public demo video are not yet available. Local screenshots use synthetic data and a Hardhat chain. No production deployment is claimed.
+Prepared 6 October 2026 against source commit `f196d2aa5c5fb13e2c97609bf9464383bceb0620`, with the documentation updates in this package. This remains a draft because the public demo video, live email, hosted expiry evidence, and complete screenshot set are pending. Local screenshots use synthetic data and a Hardhat chain. Hosted screenshots and explorer links are identified separately below. Only free-tier services are used.
 
 ## 1. System Overview
 
@@ -7,7 +7,7 @@ CertChain lets an educational organization create and manage digital certificate
 
 The design separates three kinds of information. PostgreSQL is the operational database for organizations, users, certificate details, recipient email, transaction and delivery journals, and private revocation reasons. Private file or object storage holds generated PDFs. Ethereum stores only a deterministic certificate key, a `bytes32` SHA-256 proof, issue and optional expiry timestamps, issuer address, and a one-way revocation flag. The chain does not contain names, emails, PDF bytes, or the revocation reason.
 
-The implemented system runs locally with PostgreSQL and Hardhat. The public GitHub repository is available. Sepolia deployment, production hosting, and a public video remain pending; the free-tier deployment plan is in `docs/deployment/free-tier.md`.
+The implemented system runs locally with PostgreSQL and Hardhat. A free-tier deployment uses Vercel Hobby, Render Free, Neon Free PostgreSQL and private storage, and a source-verified contract on Sepolia. One hosted certificate remains valid, and a second was issued then revoked; both public results matched their confirmed Sepolia proof. Live email, hosted expiry evidence, and the public video remain pending; the deployment record is included in this package.
 
 ## 2. System Architecture
 
@@ -23,7 +23,7 @@ flowchart LR
   API --> SMTP[SMTP delivery]
   API -->|web3j + server-held issuer key| RPC[Ethereum RPC]
   RPC --> Registry[CertificateRegistry]
-  Web --> Explorer[Chain explorer, when deployed]
+  Web --> Explorer[Sepolia Etherscan]
 ```
 
 The frontend can suggest valid inputs and guard navigation, but the backend authorizes every protected route using the verified JWT's organization ID. The portal never sends an authoritative hash, status, transaction hash, role, or issuer private key.
@@ -116,7 +116,7 @@ erDiagram
     uuid id PK
     uuid certificate_id FK
     varchar transaction_hash UK
-    varchar type
+    varchar transaction_type
     varchar status
     bigint chain_id
   }
@@ -136,46 +136,54 @@ UUIDs are internal keys; `certificate_id` is unique and formatted `CERT-YYYY-NNN
 
 ## 5. Blockchain Architecture
 
-The backend computes `certificateKey = keccak256(UTF-8(uppercase(trim(public ID))))`; this hides the readable ID from the contract mapping but gives a stable lookup key. The proof is `SHA-256(UTF-8(canonical data))`. Version `v1` fixes the field order: public ID, recipient name, program, organization UUID, issue date, expiry date. Text is Unicode NFC normalized, trimmed, internal whitespace collapsed, and backslash/pipe/equals escaped. The ID is uppercased with `Locale.ROOT`; names and programs keep their case. Dates use ISO format and a missing expiry is empty. This prevents logically equivalent text from producing accidental different proofs.
+The backend computes `certificateKey = keccak256(UTF-8(uppercase(trim(public ID))))`, which gives a stable lookup key. Anyone who knows or guesses the public ID can compute this key; hashing does not make the ID confidential. The proof is `SHA-256(UTF-8(canonical data))`. Version `v1` fixes the field order: public ID, recipient name, program, organization UUID, issue date, expiry date. Text is Unicode NFC normalized, trimmed, internal whitespace collapsed, and backslash/pipe/equals escaped. The ID is uppercased with `Locale.ROOT`; names and programs keep their case. Dates use ISO format and a missing expiry is empty. This prevents logically equivalent text from producing accidental different proofs.
 
-The backend signs transactions with a server-held issuer key. The user browser never gets this key. A separate admin account controls contract roles. Local Hardhat tests and local-chain integration have been exercised; no Sepolia address or explorer transaction is available yet. Transaction journals preserve `CREATED`, `SUBMITTED`, `CONFIRMED`, and `FAILED` states across process failures. Reconciliation checks a known hash or on-chain event/key before a retry, avoiding duplicate issuance or revocation.
+The backend signs transactions with a server-held issuer key stored in Render's secret environment; the user browser never gets this key. A separate admin wallet controls contract roles. The [Sepolia registry](https://sepolia.etherscan.io/address/0x293597447c1e39825Df82fc3791BA7AB3Eb9719f#code) is source-verified. [Hosted issuance `0x3e690ae4…19c6690`](https://sepolia.etherscan.io/tx/0x3e690ae42fda4f90066c922bc3310e4b2384160cd47c98645fdb1f15819c6690) succeeded in block `11852629` with a decoded `CertificateIssued` event. A separate [hosted revocation `0x180f2dad…f856e028`](https://sepolia.etherscan.io/tx/0x180f2dadcb0e2ba8a1644b34036a805faebfce4d9dd89b33f5978f69f856e028) succeeded in block `11852907` with a decoded `CertificateRevoked` event. Transaction journals preserve `CREATED`, `SUBMITTED`, `CONFIRMED`, and `FAILED` states across process failures. Reconciliation checks a known hash or on-chain event/key before a retry, avoiding duplicate issuance or revocation.
 
 ## 6. Smart Contract Design
 
 `CertificateRegistry.sol` uses OpenZeppelin `AccessControlDefaultAdminRules` with an explicit admin, a one-day delayed admin transfer, and `ISSUER_ROLE` for issue and revoke. The constructor rejects zero addresses. Issuance rejects zero key/hash, duplicates, and expiry at or before the block time. Records are never overwritten. Revocation rejects missing or already revoked keys. Indexed `CertificateIssued` and `CertificateRevoked` events support receipt validation and recovery. Public read and verify functions return deterministic results; on-chain expiry is true only after `expiresAt`, and application status prioritizes revocation.
 
-The contract stores only key, proof hash, issue/expiry timestamps, issuer, and revoked flag. Eight contract tests passed locally; the latest recorded coverage reports 100% line and statement coverage for `CertificateRegistry.sol`. Source verification on Sepolia is pending.
+The contract stores only key, proof hash, issue/expiry timestamps, issuer, and revoked flag. Eight contract tests passed locally on 6 October; coverage reported 100% line and statement coverage for `CertificateRegistry.sol`. Etherscan displays an Exact Match source verification for the deployed Sepolia address.
 
 ## 7. User Interface Design / Screenshots
 
-The portal uses a restrained educational trust style with clear labels, focus states, loading/empty/error states, and text/icon status cues. The login screen and the screenshots below are actual browser or PDF renders from the codebase. The verification screenshots came from a synthetic local PostgreSQL and Hardhat demonstration, not a public deployment.
+The portal uses a restrained educational trust style with clear labels, focus states, loading/empty/error states, and text/icon status cues. The screenshots below are actual browser or PDF renders. Local verification states came from a synthetic PostgreSQL and Hardhat demonstration; hosted captures use the real Vercel/Sepolia deployment.
 
 ![Local login screen](../screenshots/phase14-login-local.png)
+![Hosted organization dashboard after admin login](../screenshots/production-admin-dashboard-2026-10-05.png)
+![Hosted draft creation with server-issued public certificate ID](../screenshots/production-draft-created-2026-10-05.png)
+![Hosted certificate draft details before issuance](../screenshots/production-draft-details-2026-10-05.png)
+![Hosted certificate issued with confirmed Sepolia transaction](../screenshots/production-issued-sepolia-2026-10-06.png)
+![Hosted public verification shows valid proof](../screenshots/production-valid-sepolia-2026-10-06.png)
+![Sepolia Etherscan transaction with decoded issue event](../screenshots/production-issue-event-sepolia-2026-10-06.png)
+![Hosted certificate PDF rendered after confirmed Sepolia issuance; its QR was independently decoded](../screenshots/production-certificate-sepolia-2026-10-06.png)
+![Local dashboard with actual API counts and confirmed issuance activity, captured 29 September 2026](../screenshots/submission-dashboard-local.png)
 ![Valid local-chain verification](../screenshots/phase12-valid.png)
 ![Expired local-chain verification](../screenshots/phase12-expired.png)
 ![Revoked local-chain verification](../screenshots/phase12-revoked.png)
 ![Unknown certificate response](../screenshots/phase12-not-found.png)
 ![Proof mismatch from synthetic tampering](../screenshots/phase12-proof-mismatch.png)
-![Generated PDF with QR](../screenshots/sample-certificate.png)
+![PDF downloaded after confirmed local issuance; its QR was independently decoded to the displayed localhost URL](../screenshots/submission-issued-local.png)
 
-The generated PDF/QR image is a synthetic test fixture whose verification URL is an example domain, not a live site. Real dashboard, create, admin details, issue/revocation transaction, and explorer screenshots are still needed. Do not substitute designs or fabricated transaction images for those captures.
+The local screenshots and PDF are synthetic captures from separate runs; repeated public IDs do not represent one certificate history. The local QR decoded to its localhost URL. The hosted PDF is included in this package; it was downloaded, visually checked, and its QR decoded exactly to the public URL for `CERT-2026-000001`. The separate hosted [revoked result](https://cert-chain-gold.vercel.app/verify/CERT-2026-000002) and [explorer event](https://sepolia.etherscan.io/tx/0x180f2dadcb0e2ba8a1644b34036a805faebfce4d9dd89b33f5978f69f856e028#eventlog) were verified on 6 October. A third [hosted fixture](https://cert-chain-gold.vercel.app/verify/CERT-2026-000003) expires after 6 October UTC and was still VALID that day; its actual EXPIRED result needs a next-day check. Saved hosted revoked/expired screenshots and real recipient email remain pending. Local chain hashes are not Sepolia proof.
 
 ## 8. Implementation Summary
 
-Implemented features include authentication with BCrypt and short-lived JWT cookies, CSRF protection, tenant-safe draft management, deterministic proof hashing, a role-controlled registry, failure-safe issuance/revocation journals, public verification, PDF/QR generation, bounded email delivery, and a tenant dashboard. The backend stores authoritative chain metadata in transaction rows; PDF and email failures do not undo confirmed issuance. A private S3-compatible storage adapter and a free-tier deployment configuration are prepared but not verified against live services.
+Implemented features include authentication with BCrypt and short-lived JWT cookies, CSRF protection, tenant-safe draft management, deterministic proof hashing, a role-controlled registry, failure-safe issuance/revocation journals, public verification, PDF/QR generation, bounded email delivery, and a tenant dashboard. The backend stores authoritative chain metadata in transaction rows; PDF and email failures do not undo confirmed issuance. The hosted backend uses Neon PostgreSQL and private object storage. One confirmed Sepolia issuance remains valid, and another was successfully revoked with public proof. Live SMTP remains disabled pending Brevo phone verification and a real mailbox test.
 
-On 29 September 2026, the backend test command reported 81 tests with zero failures/errors and 38 Testcontainers skips because Docker Desktop was unavailable; 43 tests executed. Earlier isolated external-PostgreSQL runs executed five tests, and external local-chain runs executed three, with no skips or failures, as documented in `docs/screenshots/phase12-local-evidence.md`. Frontend lint, build, and 28 tests passed; eight contract tests and coverage passed. These results do not prove a public Sepolia or production deployment. A full Docker-backed run, production smoke tests, backup/restore check, and live storage/SMTP checks remain open.
+On 6 October 2026, Docker was restored and two full backend runs each passed 73 tests with zero failures, errors, or skips, including PostgreSQL Testcontainers migration, constraints, security, tenant, workflow, and delivery tests. An additional Mailpit smoke test passed with a synthetic multipart email and PDF attachment. Frontend lint/build and all 31 tests passed. Contract typecheck, all eight tests, and coverage passed; `CertificateRegistry.sol` reported 100% line and statement coverage. The included dated validation record distinguishes these local results from hosted proof. The hosted PDF was inspected and its QR independently decoded. Hosted revocation and public re-verification passed. A complete hosted browser walkthrough, real mailbox delivery, the expiry fixture's next-day result, and backup/recovery check remain open.
 
 ## 9. Public GitHub Repository Link
 
-[https://github.com/Thna17/CertChain](https://github.com/Thna17/CertChain) is public and contains the source, migrations, diagrams, tests, and local synthetic evidence. The `main` branch was current at the time this draft was prepared. No public app URL or explorer transaction exists yet.
+[https://github.com/Thna17/CertChain](https://github.com/Thna17/CertChain) is the original public team repository; the free deployment currently builds from [https://github.com/Seypa-47/CertChain](https://github.com/Seypa-47/CertChain). The [public app](https://cert-chain-gold.vercel.app), [API health endpoint](https://certchain-api-06gv.onrender.com/actuator/health), [verified contract](https://sepolia.etherscan.io/address/0x293597447c1e39825Df82fc3791BA7AB3Eb9719f#code), and [hosted issuance transaction](https://sepolia.etherscan.io/tx/0x3e690ae42fda4f90066c922bc3310e4b2384160cd47c98645fdb1f15819c6690) are public. Their current availability must be checked again before submission.
 
 ## 10. Individual Contribution Report
 
-Git history contains exactly two author identities before this report. **Hong Than Brathna** (`hangbrathna10@gmail.com`) authored foundation commit `8b67919` on 22 September 2026. That commit established the repository, Next.js/Spring Boot/Hardhat scaffolds, Maven wrapper, Docker Compose, environment templates, initial interface and security skeleton, and first architecture, API, database, flow, blockchain, and checklist documents.
+Git history through `f196d2a` contains exactly two author identities. **Hong Than Brathna** (`hangbrathna10@gmail.com`) authored foundation commit `8b67919` on 22 September 2026. That commit established the repository, Next.js/Spring Boot/Hardhat scaffolds, Maven wrapper, Docker Compose, environment templates, initial interface and security skeleton, and first architecture, API, database, flow, blockchain, and checklist documents.
 
-At the report evidence cutoff, **Seypa47** (`khemrakpasey01@gmail.com`) authored 14 subsequent commits through `80ab457`. Their diffs added the database/domain layer, PostgreSQL tests, authentication, draft management, registry contract, hashing and blockchain workflows, verification, PDF/QR, revocation, email, dashboard, security tests, and deployment preparation. These statements describe Git-authored changes, not a measured percentage of effort. No PR, review, design-session, pair-programming, or separate test-session record was supplied. Commit count alone cannot establish a fair effort split; any uncommitted contribution needs independently verifiable evidence before it is credited.
+At the report evidence cutoff, **Seypa47** (`khemrakpasey01@gmail.com`) authored 22 subsequent commits through `f196d2a`. Their diffs added the database/domain layer, PostgreSQL tests, authentication, draft management, registry contract, hashing and blockchain workflows, verification, PDF/QR, revocation, email, dashboard, security tests, deployment preparation, free hosting integration, and report work. These statements describe Git-authored changes, not a measured percentage of effort. The distribution is visibly uneven: one foundation commit and 22 later commits. No PR, review, design-session, pair-programming, or separate test-session record was supplied. Commit count alone cannot establish a fair effort split. Only Git history is used for attribution, as requested; later submission-preparation commits are outside this dated tally.
 
 ## 11. Public Demo Video Link
 
-**Pending.** No public demo video URL was supplied as of 29 September 2026. The ordered narration and recording checklist are in `docs/report/demo-recording-script.md`. The report must be finalized only after a real URL is available and checked. The video should distinguish local Hardhat evidence from a future Sepolia deployment.
+**Pending.** The student plans to film the demo and has not provided a public URL. An ordered narration and recording checklist are included in this package. The report must be finalized only after a real URL is available and checked. The video should show the hosted Sepolia evidence and clearly label any local synthetic tamper or expiry fixture.

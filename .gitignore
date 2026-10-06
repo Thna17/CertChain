@@ -35,3 +35,6 @@ backend/storage/
 # Logs and temporary work
 *.log
 tmp/
+
+# Prepared submission archives (regenerate from the report scripts)
+output/submission/

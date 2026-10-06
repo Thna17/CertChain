@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-03",
+  "source_commit": "fd24f698f491a1f6fae63fa699680d4016f864c5",
+  "status": "INCOMPLETE_RELEASE_VALIDATION",
+  "backend": {
+    "command": "cd backend; ./mvnw.cmd test",
+    "exit_code": 0,
+    "tests": 72,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 38,
+    "executed": 34,
+    "skip_reason": "Docker engine unavailable; Testcontainers classes skipped",
+    "classes": [
+      {
+        "name": "com.certchain.artifact.S3ArtifactStorageTests",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.auth.ProvisionAdminTests",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.AuthIntegrationTests",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 14
+      },
+      {
+        "name": "com.certchain.CertChainBackendApplicationTests",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.CertificateArtifactTests",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.CertificateEmailDeliveryTests",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.CertificateHashServiceTests",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.CertificateIdGeneratorTests",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.CertificateStatusServiceTests",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.DashboardQueryTests",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.DevBootstrapIntegrationTests",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      {
+        "name": "com.certchain.IssuanceWorkflowIntegrationTests",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 7
+      },
+      {
+        "name": "com.certchain.PostgresDomainIntegrationTests",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 7
+      },
+      {
+        "name": "com.certchain.PublicVerificationRateLimiterTests",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.PublicVerificationTests",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.certchain.RevocationWorkflowIntegrationTests",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 9
+      },
+      {
+        "name": "com.certchain.SmtpCertificateEmailServiceTests",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "frontend": {
+    "commands": [
+      "npm run lint",
+      "npm test",
+      "npm run build"
+    ],
+    "exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "test_files": 8,
+    "tests_passed": 28,
+    "warnings": [
+      "Vitest native config warned about ESM syntax in a CommonJS config and redundant tsconfig paths plugin."
+    ]
+  },
+  "blockchain": {
+    "commands": [
+      "npm run typecheck",
+      "npm run coverage"
+    ],
+    "exit_codes": [
+      0,
+      0
+    ],
+    "tests_passed": 8,
+    "registry_line_coverage_percent": 100,
+    "registry_statement_coverage_percent": 100
+  },
+  "historical_only": {
+    "date": "2026-09-29",
+    "external_postgresql_tests_passed": 5,
+    "external_local_chain_tests_passed": 3,
+    "rerun_on_package_date": false
+  },
+  "not_performed": [
+    "Fresh npm ci installation",
+    "Complete PostgreSQL Testcontainers run",
+    "Browser end-to-end suite",
+    "Public deployment and Sepolia smoke tests",
+    "Deployed SMTP/PDF/QR checks"
+  ],
+  "dependency_installation": "Existing locked installations",
+  "production_urls": null,
+  "demo_video_url": null
+}

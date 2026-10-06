@@ -149,7 +149,7 @@ class ERDiagram(Flowable):
     def draw(self) -> None:
         c = self.canv
         box(c, 6, 180, 148, 74, "organization", ("id UUID PK", "name, email"))
-        box(c, 181, 231, 149, 74, "app_user", ("id UUID PK", "organization_id FK", "email unique (casefold)"))
+        box(c, 181, 231, 149, 74, "app_user", ("id UUID PK", "organization_id FK", "unique lower(email)"))
         box(c, 181, 120, 149, 95, "certificate", ("id UUID PK", "organization_id FK", "certificate_id unique", "lifecycle + proof hash"))
         box(c, 358, 201, 151, 84, "blockchain_transaction", ("certificate_id FK", "tx hash unique", "chain + receipt journal"))
         box(c, 358, 99, 151, 84, "email_delivery", ("certificate_id FK", "status + attempts"))
@@ -161,6 +161,7 @@ class ERDiagram(Flowable):
         c.setFillColor(MID)
         c.setFont("Noto", 7.2)
         c.drawString(9, 97, "Yearly counter is independent of tenant.")
+        c.drawString(190, 44, "Arrows: one parent to zero or more child rows.")
 
 
 STEPS = {
@@ -246,7 +247,7 @@ def page_frame(c, doc) -> None:
     c.setFillColor(MID)
     c.drawRightString(width - 45, height - 31, "EVIDENCE DRAFT")
     c.line(44, 42, width - 44, 42)
-    c.drawString(45, 29, "Local evidence only - public deployment and video pending")
+    c.drawString(45, 29, "Free-tier deployment verified - remaining gates and video pending")
     c.drawRightString(width - 45, 29, f"Page {doc.page}")
     c.restoreState()
 
@@ -262,8 +263,8 @@ def build() -> None:
         Spacer(1, 23),
         Paragraph("CertChain", st["title"]),
         Paragraph("Digital certificate issuance and public proof verification", st["subtitle"]),
-        Paragraph("Assignment report | 29 September 2026", st["body"]),
-        Paragraph("EVIDENCE DRAFT - Public deployment, Sepolia proof, complete portal captures, and video URL are pending.", st["callout"]),
+        Paragraph("Assignment report | 6 October 2026", st["body"]),
+        Paragraph("EVIDENCE DRAFT - Hosted issue, revocation, proof, and PDF/QR verified; email, expiry, and video pending.", st["callout"]),
     ]
     lines = text.splitlines()
     index = 0

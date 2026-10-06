@@ -18,7 +18,7 @@
 - [x] Implement entities, enums, repositories, DTOs, and mappers.
 - [x] Implement concurrency-safe certificate ID allocation.
 - [x] Add repository and container-backed integration test code.
-- [ ] Execute the complete PostgreSQL Testcontainers suite without skips. The 3 October run still skipped Docker-dependent classes; separate external PostgreSQL runs passed in September.
+- [x] Execute the complete PostgreSQL Testcontainers suite without skips. On 6 October, two full backend runs each passed 73 tests with zero failures, errors, or skips against fresh PostgreSQL 17.11 containers.
 
 ## Phase 3 - Authentication and tenancy
 
@@ -44,7 +44,7 @@
 - [x] Add and smoke-test a local Ignition deployment module.
 - [x] Generate the Java wrapper for backend blockchain integration.
 - [x] Document the Sepolia deployment procedure without committing secrets.
-- [ ] Test deployment on Sepolia.
+- [x] Test deployment on Sepolia. The verified contract was deployed with separate Admin and Issuer addresses; synthetic issue and revoke receipts and one hosted certificate issue were checked on Sepolia.
 
 ## Phase 6 - Issuance and blockchain integration
 
@@ -82,7 +82,7 @@
 - [x] Implement templated issuance email with the generated PDF attachment.
 - [x] Record delivery attempts without rolling back issuance.
 - [x] Add bounded retry, authorized resend, and development SMTP configuration.
-- [ ] Complete successful and failed delivery testing against Mailpit and PostgreSQL. Successful local issuance-to-Mailpit delivery with a PDF attachment was observed on 29 September; the full delivery failure/recovery integration gate remains open while Docker is unavailable.
+- [x] Complete successful and failed delivery testing against Mailpit and PostgreSQL. The 6 October full backend runs executed the PostgreSQL delivery tests without skips; a separate Mailpit smoke test delivered multipart email with a PDF attachment. Live Brevo delivery remains a deployment gate.
 
 ## Phase 11 - Dashboard and UI polish
 
@@ -92,7 +92,7 @@
 
 ## Phase 12 - Verification and security review
 
-- [ ] Run the full backend suite with PostgreSQL Testcontainers. Unit tests and opt-in external PostgreSQL/local-chain integration tests passed, but the Docker-backed classes skipped while Docker Desktop was unavailable.
+- [x] Run the full backend suite with PostgreSQL Testcontainers. Two 6 October runs passed 73 tests each with zero skipped; this does not replace the still-pending hosted browser and email checks.
 - [x] Run contract tests and coverage.
 - [x] Run frontend component and main-flow tests.
 - [x] Execute the unknown, issue/valid, expired, revoke/reverify, and tamper demo scenarios with synthetic data.
@@ -113,3 +113,4 @@
 - [ ] Add public GitHub and demo URLs.
 - [ ] Record focused demo flow.
 - [ ] Render and inspect the final submission PDF.
+- [x] Prepare a clearly labeled draft package with source, dated test evidence, Git contribution record, dashboard/PDF captures, and recording instructions (3 October 2026). This does not complete the public deployment/video/final-report gates.

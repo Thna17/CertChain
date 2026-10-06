@@ -1,6 +1,8 @@
 # CertChain demo recording script and checklist
 
-No public demo video exists yet. This script is ready for a controlled local environment or a verified future Sepolia deployment. State the network shown on screen; do not describe local Hardhat hashes as public explorer transactions. Use synthetic recipient names and emails. Do not record passwords, recovery phrases, private keys, RPC URLs with keys, SMTP credentials, or hidden browser settings.
+No public demo video exists yet. This script is ready for the verified Sepolia deployment, with local Hardhat fixtures only where a hosted state is unavailable. State the network shown on screen; do not describe local Hardhat hashes as public explorer transactions. Use synthetic recipient names and emails. Do not record passwords, recovery phrases, private keys, RPC URLs with keys, SMTP credentials, or hidden browser settings.
+
+The student confirmed they will film the demo. Target roughly 6-8 minutes including pauses. Deployment must stay free. The [hosted valid certificate](https://cert-chain-gold.vercel.app/verify/CERT-2026-000001) and its [confirmed issue transaction](https://sepolia.etherscan.io/tx/0x3e690ae42fda4f90066c922bc3310e4b2384160cd47c98645fdb1f15819c6690) are available. A separate [hosted revoked certificate](https://cert-chain-gold.vercel.app/verify/CERT-2026-000002) and [confirmed revoke event](https://sepolia.etherscan.io/tx/0x180f2dadcb0e2ba8a1644b34036a805faebfce4d9dd89b33f5978f69f856e028#eventlog) are available for a cutaway; use a new disposable certificate when filming the full create/issue/revoke flow. Live email remains pending Brevo phone verification and mailbox testing.
 
 ## Preparation
 
@@ -24,7 +26,7 @@ No public demo video exists yet. This script is ready for a controlled local env
 11. **Revoked verify (25 s).** Reopen the public page and show `REVOKED`. Mention that this takes priority over expiry and that the private reason is absent.
 12. **Tamper-hash explanation (30 s).** Use the sanitized local proof-mismatch capture or a disposable local record, not production data. Explain that changing a proof-relevant database field changes the recomputed SHA-256 and yields `PROOF_MISMATCH`, never `VALID`. Restore the local fixture after demonstration.
 
-Optional short cutaway: show the expired local capture and explain that expiry begins the day after the stated UTC expiry date. Keep the main order above unchanged.
+After the ordered walkthrough, include a short expiry cutaway: `CERT-2026-000003` was issued on Sepolia with expiry date 6 October 2026 and was still VALID that day. After 7 October 2026 07:00 Bangkok time, verify its actual EXPIRED state before filming; only then revoke this disposable certificate if demonstrating revoked-over-expired priority. Explain that expiry begins the day after the stated UTC expiry date. Do not change the production clock. Label historical local screenshots when using them in a rehearsal.
 
 ## Review before publishing
 
